@@ -1,0 +1,56 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+model Pokemon {
+  id Int @id
+  nameKo String
+  nameEn String
+  types String[]
+  sprite String
+  artwork String?
+  color String?
+  generation Int?
+  owners Ownership[]
+  votes Vote[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([nameKo])
+  @@index([nameEn])
+}
+model Ownership {
+  id String @id @default(cuid())
+  pokemonId Int
+  campus String
+  className String
+  studentName String
+  publicName String
+  createdAt DateTime @default(now())
+  pokemon Pokemon @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  @@unique([pokemonId, campus, className, studentName])
+  @@index([pokemonId])
+  @@index([campus, className])
+  @@index([createdAt])
+}
+model Vote {
+  id String @id @default(cuid())
+  pokemonId Int
+  voterHash String
+  createdAt DateTime @default(now())
+  pokemon Pokemon @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  @@unique([pokemonId, voterHash])
+  @@index([pokemonId])
+  @@index([createdAt])
+}
+model AuditLog {
+  id BigInt @id @default(autoincrement())
+  action String
+  entity String
+  entityId String?
+  actorHash String?
+  ipHash String?
+  userAgent String?
+  payload Json?
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+  @@index([action])
+  @@index([entity, entityId])
+}
